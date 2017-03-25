@@ -22,6 +22,7 @@ class App extends Component {
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
   }
 
   componentDidMount(){
@@ -39,6 +40,12 @@ class App extends Component {
     this.setState({ result });
   }
 
+  onSearchSubmit(event){
+    event.preventDefault();
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+  }
+
   onDismiss(id) {
     const isNotId = item => item.objectID !== id;
     const updatedHits = this.state.result.hits.filter(isNotId);
@@ -54,19 +61,16 @@ class App extends Component {
   render() {
     const { searchTerm, result } = this.state;
 
-    console.log(result);
-
     return (
       <div className="page">
         <div className="interactions">
-          <Search value={ searchTerm } onChange={ this.onSearchChange }>
-            Search: 
+          <Search value={ searchTerm } onChange={ this.onSearchChange } onSubmit={ this.onSearchSubmit }>
+            search
           </Search>
         </div>
         {
           result && <Table 
                       list={ result.hits } 
-                      pattern={ searchTerm }
                       onDismiss={ this.onDismiss }
                     />
         }
@@ -75,10 +79,10 @@ class App extends Component {
   }
 }
 
-const Search = ({ value, onChange, children }) =>
-  <form>
-    { children }
+const Search = ({ value, onChange, onSubmit, children }) =>
+  <form onSubmit={ onSubmit }>
     <input type="text" value={ value } onChange={ onChange } />
+    <button type="submit">{ children }</button>
   </form>
 
 const Button = ({ onClick, className='', children}) =>
@@ -90,9 +94,9 @@ const largeColumn = { width: '40%' },
       midColumn = { width: '20%' },
       smallColumn = { width: '10%' };
 
-const Table = ({ list, pattern, onDismiss }) =>
+const Table = ({ list, onDismiss }) =>
   <div className="table">
-    { list.filter(isSearched(pattern)).map(item => 
+    { list.map(item => 
       <div key={ item.objectID } className="table-row">
         <span style={ largeColumn }><a href={ item.url }>{ item.title }</a></span>
         <span style={ smallColumn }>{ item.author }</span>
