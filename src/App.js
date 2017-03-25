@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux',
-      PATH_BASE = 'https://hn.algolia.com/api/v1',
-      PATH_SEARCH = '/search',
-      PARAM_SEARCH = 'query=';
+      DEFAULT_PAGE = 0,
+      DEFAULT_HPP = '100';
 
-const URL = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+const PATH_BASE = 'https://hn.algolia.com/api/v1',
+      PATH_SEARCH = '/search',
+      PARAM_SEARCH = 'query=',
+      PARAM_PAGE = 'page=',
+      PARAM_HPP = 'hitsPerPage=';
 
 const isSearched = (searchTerm) => (item) => !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -25,25 +28,31 @@ class App extends Component {
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
   }
 
-  componentDidMount(){
+  componentDidMount(){ // what happens when the component first mounts on the page
     const { searchTerm } = this.state;
-    this.fetchSearchTopStories(searchTerm);
+    this.fetchSearchTopStories(searchTerm, DEFAULT_PAGE);
   }
 
-  fetchSearchTopStories(searchTerm){
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+  fetchSearchTopStories(searchTerm, page){
+    const url = `${ PATH_BASE }${ PATH_SEARCH }?${ PARAM_SEARCH }${ searchTerm }&${ PARAM_PAGE }${ page }&${ PARAM_HPP }${ DEFAULT_HPP }`
+    fetch(url)
       .then(response => response.json())
       .then(result => this.setSearchTopStories(result));
   }
 
   setSearchTopStories(result){
-    this.setState({ result });
+    const { hits, page } = result;
+    const oldHits = page !== 0 ? this.state.result.hits : [];
+    const updatedHits = [...oldHits, ...hits];
+    this.setState({
+      result: { hits: updatedHits, page }
+    });
   }
 
   onSearchSubmit(event){
     event.preventDefault();
     const { searchTerm } = this.state;
-    this.fetchSearchTopStories(searchTerm);
+    this.fetchSearchTopStories(searchTerm, DEFAULT_PAGE);
   }
 
   onDismiss(id) {
@@ -60,6 +69,7 @@ class App extends Component {
 
   render() {
     const { searchTerm, result } = this.state;
+    const page = (result && result.page) || DEFAULT_PAGE;
 
     return (
       <div className="page">
@@ -68,12 +78,17 @@ class App extends Component {
             search
           </Search>
         </div>
+        <div className="interactions">
         {
           result && <Table 
                       list={ result.hits } 
                       onDismiss={ this.onDismiss }
                     />
         }
+        </div>
+        <div class="interactions">
+          <Button onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}>More</Button>
+        </div>
       </div>
     );
   }
