@@ -17,6 +17,7 @@ class App extends Component {
       result: null,
       searchTerm: DEFAULT_QUERY
     };
+
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
@@ -53,7 +54,7 @@ class App extends Component {
   render() {
     const { searchTerm, result } = this.state;
 
-    if (!result) { return null;}
+    console.log(result);
 
     return (
       <div className="page">
@@ -61,8 +62,14 @@ class App extends Component {
           <Search value={ searchTerm } onChange={ this.onSearchChange }>
             Search: 
           </Search>
-          <Table list={ result.hits } pattern={ searchTerm } onDismiss={ this.onDismiss }/>
         </div>
+        {
+          result && <Table 
+                      list={ result.hits } 
+                      pattern={ searchTerm }
+                      onDismiss={ this.onDismiss }
+                    />
+        }
       </div>
     );
   }
@@ -80,7 +87,7 @@ const Button = ({ onClick, className='', children}) =>
   </button>
 
 const largeColumn = { width: '40%' },
-      midColumn = { width: '30%' },
+      midColumn = { width: '20%' },
       smallColumn = { width: '10%' };
 
 const Table = ({ list, pattern, onDismiss }) =>
@@ -88,7 +95,8 @@ const Table = ({ list, pattern, onDismiss }) =>
     { list.filter(isSearched(pattern)).map(item => 
       <div key={ item.objectID } className="table-row">
         <span style={ largeColumn }><a href={ item.url }>{ item.title }</a></span>
-        <span style={ midColumn }>{ item.author }</span>
+        <span style={ smallColumn }>{ item.author }</span>
+        <span style={ midColumn }>{ new Date(item.created_at).toLocaleString() }</span>
         <span style={ smallColumn }>{ item.num_comments} Comments</span>
         <span style={ smallColumn }>{ item.points} Points</span>
         <span style={ smallColumn }>
