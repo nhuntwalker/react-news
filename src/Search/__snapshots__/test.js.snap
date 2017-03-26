@@ -1,0 +1,13 @@
+exports[`Search snapshots 1`] = `
+<form
+  onSubmit={undefined}>
+  <input
+    onChange={undefined}
+    type="text"
+    value={undefined} />
+  <button
+    type="submit">
+    Search
+  </button>
+</form>
+`;
