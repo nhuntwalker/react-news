@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux',
@@ -118,7 +118,7 @@ class App extends Component {
           list={ list } 
           onDismiss={ this.onDismiss }
         />
-        <div class="interactions">
+        <div className="interactions">
           <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>More</Button>
         </div>
       </div>
@@ -132,10 +132,27 @@ const Search = ({ value, onChange, onSubmit, children }) =>
     <button type="submit">{ children }</button>
   </form>
 
-const Button = ({ onClick, className='', children}) =>
+Search.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  onSubmit: PropTypes.func,
+  children: PropTypes.node
+};
+
+const Button = ({ onClick, className, children}) =>
   <button onClick={ onClick } className={ className } type="button">
     { children }
   </button>
+
+Button.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  children: PropTypes.node.isRequired
+};
+
+Button.defaultProps = {
+  className: '',
+}
 
 const largeColumn = { width: '40%' },
       midColumn = { width: '20%' },
@@ -159,4 +176,15 @@ const Table = ({ list, onDismiss }) =>
     ) }
   </div>
 
+Table.propTypes = {
+  list: PropTypes.array.isRequired,
+  onDismiss: PropTypes.func.isRequired
+};
+
 export default App;
+
+export {
+  Button,
+  Table,
+  Search,
+};
