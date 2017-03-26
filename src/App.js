@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { sortBy } from 'lodash';
 import './App.css';
 
 const DEFAULT_QUERY = 'redux',
@@ -11,8 +12,6 @@ const PATH_BASE = 'https://hn.algolia.com/api/v1',
       PARAM_PAGE = 'page=',
       PARAM_HPP = 'hitsPerPage=';
 
-const isSearched = (searchTerm) => (item) => !searchTerm || item.title.toLowerCase().includes(searchTerm.toLowerCase());
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -20,6 +19,7 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
+      isLoading: false
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
@@ -37,6 +37,7 @@ class App extends Component {
   }
 
   fetchSearchTopStories(searchTerm, page){
+    this.setState({ isLoading: true });
     const url = `${ PATH_BASE }${ PATH_SEARCH }?${ PARAM_SEARCH }${ searchTerm }&${ PARAM_PAGE }${ page }&${ PARAM_HPP }${ DEFAULT_HPP }`
     fetch(url)
       .then(response => response.json())
@@ -60,7 +61,8 @@ class App extends Component {
       results: {
         ...results,
         [searchKey]: { hits: updatedHits, page }
-      }
+      },
+      isLoading: false
     });
   }
 
@@ -93,7 +95,12 @@ class App extends Component {
   }
 
   render() {
-    const { searchTerm, results, searchKey } = this.state;
+    const {
+      searchTerm,
+      results,
+      searchKey,
+      isLoading
+    } = this.state;
     
     const page = (
       results &&
@@ -119,7 +126,11 @@ class App extends Component {
           onDismiss={ this.onDismiss }
         />
         <div className="interactions">
-          <Button onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>More</Button>
+          <ButtonWithLoading
+            isLoading={ isLoading }
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}>
+            More
+          </ButtonWithLoading>
         </div>
       </div>
     );
@@ -207,6 +218,16 @@ Table.propTypes = {
   list: PropTypes.array.isRequired,
   onDismiss: PropTypes.func.isRequired
 };
+
+const Loading = () =>
+  <div>
+    Loading...
+  </div>
+
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
+  isLoading ? <Loading /> : <Component { ...rest } />
+
+const ButtonWithLoading = withLoading(Button);
 
 export default App;
 
