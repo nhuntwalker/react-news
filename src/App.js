@@ -138,6 +138,33 @@ Search.propTypes = {
   onSubmit: PropTypes.func,
   children: PropTypes.node
 };
+// class Search extends Component {
+
+//   componentDidMount() {
+//     this.input.focus();
+//   }
+
+//   render() {
+//     const {
+//       value,
+//       onChange,
+//       onSubmit,
+//       children
+//     } = this.props;
+
+//     return (
+//       <form onSubmit={ onSubmit }>
+//         <input
+//           type="text"
+//           value={ value }
+//           onChange={ onChange }
+//           ref={(node) => { this.input = node; }}
+//         />
+//         <button type="submit">{ children }</button>
+//       </form>
+//     );
+//   }
+// }
 
 const Button = ({ onClick, className, children}) =>
   <button onClick={ onClick } className={ className } type="button">
